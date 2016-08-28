@@ -1,0 +1,40 @@
+version: '2'
+
+# Services
+# -----------------------------------------------------------------------------
+services:
+
+    # Database
+    # ------------------------------
+    db:
+        image: mariadb
+        env_file: ./.env
+
+    # WordPress (PHP container)
+    # ------------------------------
+    wp:
+        image: dbooom/docker-wp-cli
+        volumes:
+            - data:/usr/share/nginx/html
+        links:
+            - db
+        env_file: ./.env
+
+    # Web server
+    # ------------------------------
+    web-server:
+        image: dbooom/docker-nginx-with-templates
+        volumes_from:
+            - wp
+        links:
+            - wp
+        ports:
+            - "80:80"
+            - "443:443"
+        env_file: ./.env
+
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+    data:
+        driver: local
